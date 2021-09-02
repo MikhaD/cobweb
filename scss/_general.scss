@@ -1,0 +1,42 @@
+:root {
+	font-size: 10px;
+
+	--primary-background: #36393F;
+	--secondary-background: #2F3136;
+	--primary-foreground: white;
+	&.light {
+		--primary-background: white;
+		--secondary-background: white;
+		--primary-foreground: black;
+	}
+}
+
+body {
+	margin: 0;
+	height: 100vh;
+	// overflow: hidden;
+	background-color: #808080;
+	display: grid;
+	grid-template-columns: 1fr 45rem;
+}
+
+.pannel {
+	border-radius: 0.25rem;
+}
+
+main {
+	background-color: var(--primary-background);
+	margin: 1rem;
+	display: grid;
+	place-items: center;
+}
+
+aside {
+	background-color: var(--secondary-background);
+	margin: 1rem 1rem 0 0;
+}
+
+#diagram {
+	background-color: white;
+	border-radius: 0.25rem;
+}
