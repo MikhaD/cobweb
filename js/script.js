@@ -4,12 +4,26 @@ if (document.documentElement.classList.contains("light")) {
 
 const canvas = document.querySelector("#diagram");
 const main = document.querySelector("main");
+const scaleIn = document.querySelector("#scale");
+const widthIn = document.querySelector("#line-width");
+const downloadBtn = document.querySelector("#download-btn");
+const download = document.querySelector("#download");
 
-const functionIn = document.querySelector("#map-function");
+const plot = (function() {
+	const functionIn = document.querySelector("#map-function");
+	const cIn = document.querySelector("#c");
+	return function() {
+		if (functionIn.value && cIn.value) {
+			initializeGraph(scaleIn.value * 10, widthIn.value, "green");
+			
+			drawLine(functionIn.value, scaleIn.value * 10, widthIn.value * 2, "blue");
+			drawCobweb(functionIn.value, cIn.value, scaleIn.value * 10, widthIn.value, "red");
+			download.href = canvas.toDataURL("img/png");
+		}
+	}
+})();
 
-document.querySelector("#plot-btn").addEventListener("click", (e) => {
-	drawFunction(functionIn.value, "blue");
-});
+document.querySelector("#plot-btn").addEventListener("click", plot);
 
 let size = Math.ceil(main.getBoundingClientRect().height / 1.25);
 // Make size even if it isn't
@@ -22,24 +36,18 @@ canvas.height = size;
 const ctx = canvas.getContext("2d");
 
 // Draw Axes
-function drawAxes(extraWidth, offset) {
-	extraWidth = extraWidth || 0;
+function drawAxes(width, offset, color) {
+	ctx.strokeStyle = color || "black";
+	ctx.lineWidth = width || 1;
 	offset = offset || 0;
 
-	if (extraWidth) {
-		ctx.fillRect(offset, half - extraWidth, size - offset * 2, extraWidth*2);
-		ctx.fillRect(half - extraWidth, offset, extraWidth*2, size - offset*2);
-	} else {
-		ctx.beginPath();
-		ctx.moveTo(offset, half);
-		ctx.lineTo(size - offset, half);
-		ctx.closePath()
-		
-		ctx.moveTo(half, offset);
-		ctx.lineTo(half, size - offset);
-		ctx.closePath()
-		ctx.stroke();
-	}
+	ctx.beginPath();
+	ctx.moveTo(offset, half);
+	ctx.lineTo(size - offset, half);
+	
+	ctx.moveTo(half, offset);
+	ctx.lineTo(half, size - offset);
+	ctx.stroke();
 }
 
 // Draw arrows on the ends of axes
@@ -77,48 +85,105 @@ function drawArrows(width, height) {
 }
 
 // Add marks to axes
-async function markAxes(marks, markSize) {
-	marks = marks || 10;
+function markAxes(increment, markSize) {
 	markSize = markSize || 2;
 
-	for (let i = 1; i < marks + 1; ++i) {
-		ctx.fillRect(half - markSize, i*(half/(marks + 1)), markSize*2, 1);
-		ctx.fillRect(half + i*(half/(marks + 1)), half - markSize, 1, markSize*2);
-		ctx.fillRect(half - markSize, half + i*(half/(marks + 1)), markSize*2, 1);
-		ctx.fillRect(half - i*(half/(marks + 1)), half - markSize, 1, markSize*2);
+	for (let i = increment; i < half; i+=increment) {
+		ctx.fillRect(half - markSize, half - i, markSize*2, 1);
+		ctx.fillRect(half + i, half - markSize, 1, markSize*2);
+		ctx.fillRect(half - markSize, half + i, markSize*2, 1);
+		ctx.fillRect(half - i, half - markSize, 1, markSize*2);
 	}
 }
 
-function drawFunction(func, color) {
+function drawLine(func, scale, width, color) {
 	ctx.strokeStyle = color || "black";
-	const scale = 5;
+	ctx.lineWidth = width || 1;
+	scale = scale || 1;
 
 	let x = -half;
 	ctx.beginPath();
-	ctx.moveTo(xOnGraph(x), yOnGraph(eval(func)));
+	ctx.moveTo(X(x*scale), Y(eval(func)*scale));
 	x = half;
-	ctx.lineTo(xOnGraph(x), yOnGraph(eval(func)));
-	ctx.closePath();
+	ctx.lineTo(X(x*scale), Y(eval(func)*scale));
 	ctx.stroke();
 }
 
-function xOnGraph(value) {
+function drawFunction(func, scale, width, color) {
+	ctx.strokeStyle = color || "black";
+	ctx.lineWidth = width || 1;
+	scale = scale || 10;
+	const increment = Math.floor(scale/10) || 1;
+	let x, xx;
+	ctx.beginPath();
+	for (let i = -half-increment; i < half+increment; i+= increment) {
+		xx = i;
+		x = i/scale;
+		if (x === -half) ctx.moveTo(X(xx), Y(eval(func)*scale));
+		else ctx.lineTo(X(xx), Y(eval(func)*scale));
+	}
+	ctx.stroke();
+}
+
+function X(value) {
 	return value + half;
 }
 
-function yOnGraph(value) {
+function Y(value) {
 	return value*-1 + half;
 }
 
-// document.querySelector("#parse").addEventListener("click", (e) => {
-// 	functionIn.value;
-// });
+function drawCobweb(func, c, scale, width, color) {
+	let x = c;
+	c *= scale || 1;
+	ctx.lineWidth = width || 1;
+	ctx.strokeStyle = color || "black";
 
+	ctx.beginPath();
+	ctx.moveTo(X(c), Y(c));
+	let i = 0;
 
+	while (true) {
+		if (++i % 2 == 0) {
+			ctx.lineTo(X(c), Y(eval(func)*scale));
+			ctx.moveTo(X(c), Y(eval(func)*scale));
+			c = eval(func);
+			x = c;
+			c *= scale || 1;
+			if (X(c) > size || Y(c) > size || X(c) < 0 || Y(c) < 0 || round(x, 2) === round(eval(func), 2)) {
+				break;
+			}
+		} else {
+			ctx.lineTo(X(c), Y(c));
+			ctx.moveTo(X(c), Y(c));
+		}
+	}
+	ctx.stroke();
+}
 
+/**
+ * Round a number to n decimal places
+ * @param {Number} x - The number to round
+ * @param {Number} n - The number of decimal places to round to
+ */
+function round(x, n) {
+	n = n || 0;
+	if (n < 0) {
+		n = 10 ** Math.abs(n);
+		return n * Math.ceil(x / n);
+	}
+	return Math.round(x * (10**n)) / 10**n;
+}
 
+function initializeGraph(scale, lineWidth, color) {
+	lineWidth = parseInt(lineWidth);
+	ctx.clearRect(0, 0, size, size);
 
-drawAxes();
-drawArrows(3, 5);
-markAxes(10, 2);
-drawFunction("x", "green");
+	drawAxes(lineWidth, lineWidth*5);
+	drawArrows(lineWidth*3, lineWidth*5);
+	markAxes(scale, lineWidth + 1);
+	drawLine("x", 1, lineWidth*2, color);
+}
+
+initializeGraph(scaleIn.value * 10, widthIn.value, "green");
+download.href = canvas.toDataURL("img/png");

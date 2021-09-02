@@ -1,14 +1,20 @@
 :root {
 	font-size: 10px;
+	font-family: 'Source Sans Pro', sans-serif;
+	--border-radius: 0.25rem;
 
 	--primary-background: #36393F;
 	--secondary-background: #2F3136;
 	--primary-foreground: white;
+	--input-background: #40444B;
 	&.light {
 		--primary-background: white;
-		--secondary-background: white;
+		--secondary-background: #F2F3F5;		
 		--primary-foreground: black;
+		--input-background: #F5F6F7;
 	}
+
+	color: var(--primary-foreground);
 }
 
 body {
@@ -20,23 +26,26 @@ body {
 	grid-template-columns: 1fr 45rem;
 }
 
-.pannel {
-	border-radius: 0.25rem;
-}
-
 main {
 	background-color: var(--primary-background);
-	margin: 1rem;
 	display: grid;
 	place-items: center;
 }
 
 aside {
 	background-color: var(--secondary-background);
-	margin: 1rem 1rem 0 0;
+}
+
+h2 {
+	font-size: 3rem;
+}
+
+h3 {
+	font-size: 2rem;
+	margin-bottom: 0.5rem;
 }
 
 #diagram {
 	background-color: white;
-	border-radius: 0.25rem;
+	border-radius: var(--border-radius);
 }

@@ -3,3 +3,41 @@
 	flex-direction: column;
 	align-items: center;
 }
+
+input {
+	background-color: var(--input-background);
+	border: none;
+	padding: 1rem;
+	color: var(--primary-foreground);
+	font-size: 1.6rem;
+	width: 80%;
+	font-family: 'Courier New', Courier, monospace;
+	border-radius: var(--border-radius);
+	margin: 1rem 0;
+}
+
+button {
+	all: unset;
+	margin: 2rem 0;
+	padding: 1rem;
+	width: 80%;
+	font-weight: 600;
+	font-size: 1.6rem;
+	text-align: center;
+	border-radius: var(--border-radius);
+	cursor: pointer;
+	background-color: #5865F2;
+	user-select: none;
+	transition: scale 0.1s ease;
+	&:active {
+		scale: 0.95;
+	}
+}
+
+#download-btn {
+	background-color: #43B581;
+	a {
+		text-decoration: none;
+		color: white;
+	}
+}

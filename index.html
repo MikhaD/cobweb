@@ -7,15 +7,22 @@
 	<link rel="shortcut icon" id="favicon" href="./img/favicon dark.png" type="image/x-icon">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/script.js" defer></script>
-	<title>Spider Diagram Generator</title>
+	<title>Cobweb</title>
 </head>
 	<body>
 		<main class="pannel">
 			<canvas id="diagram"></canvas>
 		</main>
 		<aside id="editor" class="pannel">
+			<h2>Discrete Dynamical System</h2>
 			<input type="text" id="map-function" placeholder="map function">
+			<input type="text" id="c" placeholder="c">
 			<button id="plot-btn">Plot</button>
+			<h3>Graph Scale</h3>
+			<input type="number" id="scale" value="4">
+			<h3>Line Width</h3>
+			<input type="number" id="line-width" value="2">
+			<button id="download-btn"><a id="download" download="cobweb diagram.png">Download</a></button>
 		</aside>
 	</body>
 </html>
